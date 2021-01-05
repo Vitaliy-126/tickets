@@ -16,12 +16,12 @@
 
 #include <iostream>
 #include <string>
-#include <regex>
+#include <regex> //не обов'язкове
 #include <Windows.h>
 
 using namespace std;
 
-string* list_of_athletes(int&, int&, double&);
+string* list_of_athletes(int&, int&, double&); 
 bool check_input(string, int);
 int quantity_of_numbers(string, char);
 double** marks_of_athletes(string*, int, int);
@@ -39,14 +39,14 @@ int main() {
 	SetConsoleOutputCP(1251);
 	int athletes, judges;
 	double passing_score;
-	string* list = list_of_athletes(athletes, judges, passing_score);
-	double** marks = marks_of_athletes(list, athletes, judges);
-	string* list_of_names = names_of_athletes(list, athletes, judges);
-	double** deleted_marks = creating_massive(athletes);
+	string* list = list_of_athletes(athletes, judges, passing_score); //функція початкового вводу, повертає кількість атлетів,суддей; прохідний бал та список атлетів
+	double** marks = marks_of_athletes(list, athletes, judges); //записуємо оцінки атлетів в окремий двувимірний масив
+	string* list_of_names = names_of_athletes(list, athletes, judges); //записуємо імена атлетів в окремий масив
+	double** deleted_marks = creating_massive(athletes); //створюємо двувимірний масив для оцінок,які будуть видалені
 	delete[]list;
-	double** new_marks = processed_matrix_of_marks(marks, athletes, judges, deleted_marks);
-	output_changes(list_of_names, new_marks, deleted_marks, athletes, judges);
-	rating_of_athletes(list_of_names, marks, athletes, judges, passing_score);
+	double** new_marks = processed_matrix_of_marks(marks, athletes, judges, deleted_marks); //створюємо двувимірний масив для оцінок без видалених
+	output_changes(list_of_names, new_marks, deleted_marks, athletes, judges); //виводимо зміни, які стались після прибирання оцінок
+	rating_of_athletes(list_of_names, marks, athletes, judges, passing_score); //виводимо рейтинги для атлетів з прохідним та непрохідним балами
 	delete[]marks;
 	delete[]new_marks;
 	delete[]deleted_marks;
@@ -63,10 +63,10 @@ string* list_of_athletes(int& number_of_athletes, int& number_of_judges, double&
 	cin >> passing_score;
 	cout << "Перечислите спортсменов в формате(Иван: 5 6 7 8...)" << endl;
 	cin.ignore(8192, '\n');
-	string* list = new string[number_of_athletes];
+	string* list = new string[number_of_athletes]; //створюємо масив рядків
 	for (int i = 0; i < number_of_athletes; i++) {
 		getline(cin, list[i]);
-		while (!check_input(list[i], number_of_judges)) {
+		while (!check_input(list[i], number_of_judges)) { //не обов'язковий цикл
 			getline(cin, list[i]);
 		}
 	}
@@ -74,7 +74,7 @@ string* list_of_athletes(int& number_of_athletes, int& number_of_judges, double&
 	return list;
 }
 
-bool check_input(string line, int number_of_judges) {
+bool check_input(string line, int number_of_judges) { //не обов'язкова функція 
 	regex regular(
 		"([\\(A-zА-яЁё)]+)"
 		"(\\:)"
@@ -89,7 +89,7 @@ bool check_input(string line, int number_of_judges) {
 	}
 
 	int count;
-	count = quantity_of_numbers(line, ' ');
+	count = quantity_of_numbers(line, ' '); //обраховуємо кількість оцінок
 
 	if (count != number_of_judges) {
 		cout << "Количество оценок должно соответствовать количеству суддей" << endl;
@@ -105,7 +105,7 @@ int quantity_of_numbers(string line, char Delimiter) {
 	for (int i = 0; i < line.length(); i++) {
 		if (i != line.length() - 1) //всі, крім останнього символу, тому що рядки не закінчуються на роздільник
 		{
-			if (isdigit((unsigned char)line[i]) && line[i] != Delimiter && line[i + 1] == Delimiter) { //якщо поточний символ не є роздільником, а наступний є
+			if (isdigit((unsigned char)line[i]) && line[i] != Delimiter && line[i + 1] == Delimiter) { //якщо поточний символ є числом і не є роздільником, а наступний роздільник
 				counter++;
 			}
 		}
@@ -119,9 +119,9 @@ double** marks_of_athletes(string* list, int athletes, int judges) {
 	for (int i = 0; i < athletes; i++) {
 		marks[i] = new double[judges];
 	}
-	string* pointer;
+	string* pointer; //створюємо тимчасовий покажчик, в якому буде зберігатись список оцінок суддей
 	for (int i = 0; i < athletes; i++) {
-		pointer = line_breakdown(list[i], judges, ' ');
+		pointer = line_breakdown(list[i], judges, ' '); //витягуємо з поточної строки масив оцінок
 		for (int j = 0; j < judges; j++) {
 			marks[i][j] = stof(pointer[j]);
 		}
@@ -132,9 +132,9 @@ double** marks_of_athletes(string* list, int athletes, int judges) {
 string* names_of_athletes(string* list, int athletes, int judges) {
 	string* list_of_names = new string[athletes];
 	for (int i = 0; i < athletes; i++) {
-		for (int j = 0; j < list[i].length(); j++) {
-			if (list[i][j] == ':') break;
-			else list_of_names[i] += list[i][j];
+		for (int j = 0; j < list[i].length(); j++) { //перебираємо всі символи строки
+			if (list[i][j] == ':') break; //до двокрапки
+			else list_of_names[i] += list[i][j]; //записуємо таким чином посимвольно імена атлетів
 		}
 	}
 	return list_of_names;
@@ -144,10 +144,11 @@ string* line_breakdown(string line, int counter, char Delimiter) {
 	string* str_arr = new string[counter];
 	int end, //для знаходження наступної потрібної позиції
 		pos = 0; //лічильник для пошуку позиції символу
-	for (int i = 0; line[i] != ':' && i < line.length(); i++) {
+	for (int i = 0; line[i] != ':' && i < line.length(); i++) { //початкова позиція розпочинається після двокрапки
 		pos++;
 	}
 	pos++;
+
 	for (int number = 0; number < counter; number++) {
 		while (pos < line.length()) {
 			if (line[pos] == Delimiter) { //якщо змінна рівна роздільнику то здвигаємо позицію
@@ -155,11 +156,11 @@ string* line_breakdown(string line, int counter, char Delimiter) {
 			}
 			else { //інакше шукаємо, скільки символів до наступного роздільника 
 				end = pos;
-				while (line[end] != Delimiter && end < line.length()) {
+				while (line[end] != Delimiter && end < line.length()) { //поки символ не дорівнює роздільнику і поки не закінчились символи в строці
 					end++;
 				}
-				str_arr[number] = line.substr(pos, end - pos);
-				pos = end;
+				str_arr[number] = line.substr(pos, end - pos); //присвоюємо в масив строк витягнуте число
+				pos = end; //розпочинаємо наступну позицію з роздільника
 				break;
 			}
 		}
@@ -168,8 +169,8 @@ string* line_breakdown(string line, int counter, char Delimiter) {
 }
 
 double** processed_matrix_of_marks(double** marks, int athletes, int judges, double** deleted_marks) {
-	int pos_min,
-		pos_max;
+	int pos_min, //позиція першого мінімального числа
+		pos_max; //позиція першого максимального числа
 	double** processed_marks = new double* [athletes];
 	for (int i = 0; i < athletes; i++) {
 		processed_marks[i] = new double[judges - 2];
@@ -177,13 +178,13 @@ double** processed_matrix_of_marks(double** marks, int athletes, int judges, dou
 
 	int correction = 0;
 	for (int i = 0; i < athletes; i++) {
-		searching(marks[i], pos_min, pos_max, judges);
+		searching(marks[i], pos_min, pos_max, judges); //пошук позицій
 		for (int j = 0; j < judges; j++) {
-			if (j != pos_min && j != pos_max) {
-				processed_marks[i][j - correction] = marks[i][j];
+			if (j != pos_min && j != pos_max) { //якщо поточне j не є мінімальною і максимальною позицією
+				processed_marks[i][j - correction] = marks[i][j]; //вписуємо ці оцінки в новий масив без видалених оцінок
 			}
 			else {
-				deleted_marks[i][correction] = marks[i][j];
+				deleted_marks[i][correction] = marks[i][j]; //записуємо сюди видалені оцінки
 				correction++;
 			}
 		}
@@ -193,10 +194,8 @@ double** processed_matrix_of_marks(double** marks, int athletes, int judges, dou
 }
 
 void searching(double* numeric_array, int& pos_min, int& pos_max, int size) {
-	int post_min = 0;
-	int post_max = 0;
 	double min = numeric_array[0],
-		max = numeric_array[0];
+		   max = numeric_array[0];
 	for (int i = 0; i < size; i++) {
 		if (min > numeric_array[i]) {
 			min = numeric_array[i];
@@ -256,7 +255,7 @@ void output_changes(string* names, double** new_marks, double** deleted_marks, i
 
 void rating_of_athletes(string* names, double** marks, int athletes, int judges, double passing_score) {
 	double total_score = 0;
-	double* array_of_total = new double[athletes];
+	double* array_of_total = new double[athletes]; //створюємо масив для загальних балів
 	int number_of_losers = 0;
 	int number_of_winners;
 	for (int i = 0; i < athletes; i++) {
@@ -270,16 +269,16 @@ void rating_of_athletes(string* names, double** marks, int athletes, int judges,
 		total_score = 0;
 	}
 	number_of_winners = athletes - number_of_losers;
-	sorting_by_score(names, array_of_total, athletes);
+	sorting_by_score(names, array_of_total, athletes); //викликаємо функцію, яка сортує атлетів та їх бали за рейтингом
 	int correction = 0;
-	string* list_of_losers = new string[number_of_losers];
+	string* list_of_losers = new string[number_of_losers]; //створюємо масив з іменами, тих, хто не пройшов
 	for (int i = 0; i < athletes; i++) {
 		if (array_of_total[i] < passing_score) {
 			list_of_losers[i - correction] = names[i];
 		}
 		else correction++;
 	}
-	string* list_of_winners = new string[number_of_winners];
+	string* list_of_winners = new string[number_of_winners]; //створюємо масив з іменами, тих, хто пройшов
 	correction = 0;
 	for (int i = 0; i < athletes; i++) {
 		if (array_of_total[i] >= passing_score) {
@@ -303,14 +302,10 @@ void rating_of_athletes(string* names, double** marks, int athletes, int judges,
 void sorting_by_score(string* names, double* total, int athletes) {
 	for (int i = 0; i < athletes - 1; i++) {
 		for (int j = 0; j < athletes - 1 - i; j++) {
-			if (total[j] < total[j + 1])
+			if (total[j] < total[j + 1]) {
 				swap(names[j], names[j + 1]);
-		}
-	}
-	for (int i = 0; i < athletes - 1; i++) {
-		for (int j = 0; j < athletes - 1 - i; j++) {
-			if (total[j] < total[j + 1])
 				swap(total[j], total[j + 1]);
+			}
 		}
 	}
 }
