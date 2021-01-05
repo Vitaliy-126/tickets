@@ -33,6 +33,9 @@ double** creating_massive(int);
 void output_changes(string*, double**, double**, int, int);
 void rating_of_athletes(string*, double**, int, int, double);
 void sorting_by_score(string*, double*, int);
+void sort_alphabetically(string*, int);
+void swap_strings(string*, string*);
+void output_rating(int, int, double* , string* , string*);
 
 int main() {
 	SetConsoleCP(1251);
@@ -50,6 +53,7 @@ int main() {
 	delete[]marks;
 	delete[]new_marks;
 	delete[]deleted_marks;
+	delete[]list_of_names;
 	system("pause");
 	return 0;
 }
@@ -76,7 +80,7 @@ string* list_of_athletes(int& number_of_athletes, int& number_of_judges, double&
 
 bool check_input(string line, int number_of_judges) { //не обов'язкова функція 
 	regex regular(
-		"([\\(A-zА-яЁё)]+)"
+		"([\\s(A-zА-яЁё)]+)"
 		"(\\:)"
 		"([\\.\\s\\d]*)"
 	);
@@ -269,6 +273,7 @@ void rating_of_athletes(string* names, double** marks, int athletes, int judges,
 		total_score = 0;
 	}
 	number_of_winners = athletes - number_of_losers;
+
 	sorting_by_score(names, array_of_total, athletes); //викликаємо функцію, яка сортує атлетів та їх бали за рейтингом
 	int correction = 0;
 	string* list_of_losers = new string[number_of_losers]; //створюємо масив з іменами, тих, хто не пройшов
@@ -286,17 +291,10 @@ void rating_of_athletes(string* names, double** marks, int athletes, int judges,
 		}
 		else correction++;
 	}
-	cout << "Список спортсменов, которые смогли:" << endl;
-	int i = 0;
-	for (i; i < number_of_winners; i++) {
-		cout << list_of_winners[i] << " - " << "общий бал: " << array_of_total[i] << endl;
-	}
-	cout << "Список спортсменов, которые не смогли((:" << endl;
-	for (int j = 0; j < number_of_losers; j++) {
-		cout << list_of_losers[j] << " - " << "общий бал: " << array_of_total[i] << endl;
-		i++;
-	}
+	output_rating(number_of_winners, number_of_losers, array_of_total, list_of_winners, list_of_losers);
 	delete[]list_of_winners;
+	delete[]list_of_losers;
+	delete[]array_of_total;
 }
 
 void sorting_by_score(string* names, double* total, int athletes) {
@@ -308,4 +306,61 @@ void sorting_by_score(string* names, double* total, int athletes) {
 			}
 		}
 	}
+}
+
+void sort_alphabetically(string* names, int size) {
+	int min;
+	for (int i = 0; i < size - 1; i++) {                      //проходы алгоритма
+		for (int j = 0; j < size - i - 1; j++) {                  //цикл для перебора элементов массива
+			min = (names[j].size() < names[j + 1].size()) ? names[j].size() : names[j + 1].size();
+			for (int k = 0; k <= min; k++) {
+				if (k < min) {
+					if (tolower(names[j][k]) > tolower(names[j + 1][k])) {
+						swap_strings(&names[j], &names[j + 1]);
+						break;
+					}
+					else if (tolower(names[j][k]) < tolower(names[j + 1][k]))
+						break;
+				}
+				else if (k == min && names[j].size() > names[j + 1].size())                //сравниваем кол-во символов в строках
+					swap_strings(&names[j], &names[j + 1]);
+			}
+		}
+	}
+}
+
+void swap_strings(string* s1, string* s2) {
+	string temp;
+	temp = *s1;
+	*s1 = *s2;
+	*s2 = temp;
+}
+
+void output_rating(int number_of_winners, int number_of_losers, double* array_of_total,string* list_of_winners,string* list_of_losers) {
+	int i = 0;
+	if (number_of_winners != 0) {
+		cout << "Список спортсменов, которые смогли:" << endl;
+		for (i; i < number_of_winners; i++) {
+			cout << list_of_winners[i] << " - " << "общий бал: " << array_of_total[i] << endl;
+		}
+	}
+	else cout << "отсутствует" << endl;
+	cout << endl;
+	
+	if (number_of_losers != 0) {
+		cout << "Список спортсменов, которые не смогли((:" << endl;
+		for (int j = 0; j < number_of_losers; j++) {
+			cout << list_of_losers[j] << " - " << "общий бал: " << array_of_total[i] << endl;
+			i++;
+		}
+		cout << endl;
+		sort_alphabetically(list_of_losers, number_of_losers);
+		cout << "Отсортированый список недопущенных:" << endl;
+		for (int j = 0; j < number_of_losers; j++) {
+			cout << list_of_losers[j] << endl;
+			i++;
+		}
+	}
+	else cout << "Списки спортсменов,которые не смогли и отсортированый - пустые." << endl;
+	cout << endl;
 }
